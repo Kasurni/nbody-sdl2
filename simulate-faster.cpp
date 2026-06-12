@@ -99,18 +99,21 @@ struct Body {
 
 
 // Calculate accelerations using the law of gravitation.
-void update_acc(const Body* bodies, Vec3* acc, int n) {
-	Vec3 tmp_acc;
-	Vec3 tmp_r = { 0, 0, 0 };
-	for(int i = 0; i < n; i++) {
-		tmp_acc = { 0, 0, 0 };
-		for(int j = 0; j < n; j++) {
-			if(i == j) continue;
-			tmp_r = bodies[j].pos - bodies[i].pos;
-			tmp_acc += tmp_r/pow(abs(tmp_r) + 20, 3) * bodies[j].mass;
-		}
-		acc[i] = tmp_acc * G;
+void update_acc(const Body* bodies, Vec3* acc, int N) {
+	for(int n = 0; n < N; n++) {
+		acc[n] = {0,0,0};
 	}
+	Vec3 tmp_acc, tmp_r;
+	for(int i = 0; i < N-1; i++) {
+		for(int j = i+1; j < N; j++) {
+			tmp_r = bodies[j].pos - bodies[i].pos;
+			tmp_acc = tmp_r/pow(abs(tmp_r) + 20, 3) * bodies[j].mass;
+			acc[i] += tmp_acc;
+			acc[j] -= tmp_acc;
+		}
+		acc[i] *= G;
+	}
+	acc[N-1] *= G;
 }
 
 
