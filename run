@@ -1,4 +1,4 @@
 #!/bin/zsh
 
-clang++ $1.cpp -o $1 -I/opt/homebrew/include -L/opt/homebrew/lib -lSDL2  && ./$1
+clang++ $1.cpp -o bin/$1 -I/opt/homebrew/include -L/opt/homebrew/lib -lSDL2  && ./bin/$1
 
