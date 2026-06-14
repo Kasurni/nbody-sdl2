@@ -6,8 +6,9 @@ const int WINDOW_WIDTH = 600;
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_PITCH = WINDOW_WIDTH*sizeof(uint32_t);
 
-const double G = 10.0;
+const double G = 1.0;
 const double PARTICLE_RADIUS = 6.0;
+const double SOFTENING = PARTICLE_RADIUS / 3;
 
 
 // Define vector
@@ -99,18 +100,21 @@ struct Body {
 
 
 // Calculate accelerations using the law of gravitation.
-void update_acc(const Body* bodies, Vec3* acc, int n) {
-	Vec3 tmp_acc;
-	Vec3 tmp_r = { 0, 0, 0 };
-	for(int i = 0; i < n; i++) {
-		tmp_acc = { 0, 0, 0 };
-		for(int j = 0; j < n; j++) {
-			if(i == j) continue;
-			tmp_r = bodies[j].pos - bodies[i].pos;
-			tmp_acc += tmp_r/pow(abs(tmp_r) + 20, 3) * bodies[j].mass;
-		}
-		acc[i] = tmp_acc * G;
+void update_acc(const Body* bodies, Vec3* acc, int N) {
+	for(int n = 0; n < N; n++) {
+		acc[n] = {0,0,0};
 	}
+	Vec3 tmp_acc, tmp_r;
+	for(int i = 0; i < N-1; i++) {
+		for(int j = i+1; j < N; j++) {
+			tmp_r = bodies[j].pos - bodies[i].pos;
+			tmp_acc = tmp_r/pow(abs(tmp_r) + SOFTENING, 3);
+			acc[i] += tmp_acc * bodies[j].mass;
+			acc[j] -= tmp_acc * bodies[i].mass;
+		}
+		acc[i] *= G;
+	}
+	acc[N-1] *= G;
 }
 
 
@@ -154,21 +158,21 @@ int main() {
 	const int N = 3;
 	Body bodies[N] = {
 		Body{
-			{150,200,0},
 			{0,0,0},
-			100,
+			{0,0,0},
+			500,
 			RED
 		},
 		Body{
-			{-150,-50,0},
-			{0,0,0},
-			100,
+			{-150,0,0},
+			{0,-0.5,0},
+			1,
 			BLUE
 		},
 		Body{
-			{100,-50,0},
-			{0,0,0},
-			100,
+			{100,0,0},
+			{0,1.5,0},
+			2,
 			YELLOW
 		}
 	};
